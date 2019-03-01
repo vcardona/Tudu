@@ -12,12 +12,18 @@ class TodoListViewController: UITableViewController
 {
 
     var itemArray = [Item]()
+//    Se reemplaza esta opción de almacenar los datos por el FileManager
+//    let defaults = UserDefaults.standard
     
-    let defaults = UserDefaults.standard
+    //        Se modifica esta línea para crear nuestro propio plist.
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
     override func viewDidLoad()
     {
         super.viewDidLoad()
+        
+        
+//        print(dataFilePath)
         
         let newItem = Item()
         newItem.title = "Find Mike"
@@ -31,9 +37,12 @@ class TodoListViewController: UITableViewController
         newItem3.title = "Find Mike"
         itemArray.append(newItem3)
         
-        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
-            itemArray = items
-        }
+//        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
+//            itemArray = items
+//        }
+        
+        loadItems()
+        
     }
 
     //MARK - TableView DataSource Methods
@@ -84,7 +93,7 @@ class TodoListViewController: UITableViewController
 //            itemArray[indexPath.row].done = false
 //        }
         
-        tableView.reloadData()
+        saveItems()
         
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -102,10 +111,12 @@ class TodoListViewController: UITableViewController
             newItem.title = textField.text!
             
             self.itemArray.append(newItem)
-            
-            self.defaults.set(self.itemArray, forKey: "TodoListArray")
-            
-            self.tableView.reloadData()
+//            Modificamos la siguiente línea que estaba generando el crash al agregar nuevos datos
+//            en la lista
+//            self.defaults.set(self.itemArray, forKey: "TodoListArray")
+//            Con el cambio realizado con la nueva plist, usamos el siguiente procedimiento
+//            para almacenar los datos.
+           self.saveItems()
         }
         
         alert.addTextField { (alertTextField) in
@@ -117,6 +128,37 @@ class TodoListViewController: UITableViewController
         
         present(alert, animated: true, completion: nil)
         
+    }
+    
+    func saveItems()
+    {
+        let encoder = PropertyListEncoder()
+        
+        do{
+            let data = try encoder.encode(itemArray)
+            try data.write(to: dataFilePath!)
+        }
+        catch
+        {
+            print("Error encoding item array, \(error)")
+        }
+        
+        self.tableView.reloadData()
+    }
+    
+    func loadItems()
+    {
+        if let data = try? Data(contentsOf: dataFilePath!)
+        {
+            let decoder = PropertyListDecoder()
+            do{
+                itemArray = try decoder.decode([Item].self, from: data)
+            }
+            catch
+            {
+                print("error decoding item array,\(error)")
+            }
+        }
     }
     
 }
