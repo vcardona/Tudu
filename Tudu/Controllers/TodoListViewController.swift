@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListViewController: UITableViewController
 {
@@ -16,30 +17,22 @@ class TodoListViewController: UITableViewController
 //    let defaults = UserDefaults.standard
     
     //        Se modifica esta línea para crear nuestro propio plist.
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+
     
     override func viewDidLoad()
     {
         super.viewDidLoad()
         
-        
-//        print(dataFilePath)
-        
-        let newItem = Item()
-        newItem.title = "Find Mike"
-        itemArray.append(newItem)
-        
-        let newItem2 = Item()
-        newItem2.title = "Find Mike"
-        itemArray.append(newItem2)
-        
-        let newItem3 = Item()
-        newItem3.title = "Find Mike"
-        itemArray.append(newItem3)
+       
         
 //        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
 //            itemArray = items
 //        }
+        
+        
         
         loadItems()
         
@@ -81,8 +74,12 @@ class TodoListViewController: UITableViewController
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
     {
 //        print(itemArray[indexPath.row])
+        context.delete(itemArray[indexPath.row])
+        itemArray.remove(at: indexPath.row)
         
-        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        
+        
+//        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         //Esta línea reemplaza todo lo que tenemos en el if, es una forma más elegante de hacerlo.
 //        if itemArray[indexPath.row].done == false
 //        {
@@ -107,8 +104,12 @@ class TodoListViewController: UITableViewController
         
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             
-            let newItem = Item()
+            
+            let newItem = Item(context: self.context)
+            
             newItem.title = textField.text!
+            
+            newItem.done = false
             
             self.itemArray.append(newItem)
 //            Modificamos la siguiente línea que estaba generando el crash al agregar nuevos datos
@@ -132,34 +133,71 @@ class TodoListViewController: UITableViewController
     
     func saveItems()
     {
-        let encoder = PropertyListEncoder()
+//        Esta variable se comenta debido a que al usr CORE DATA no la necesitamos.
+//        let encoder = PropertyListEncoder()
         
         do{
-            let data = try encoder.encode(itemArray)
-            try data.write(to: dataFilePath!)
+            try context.save()
         }
         catch
         {
-            print("Error encoding item array, \(error)")
+            print("Error saving context, \(error)")
         }
         
         self.tableView.reloadData()
     }
     
-    func loadItems()
+//    Se puede llamar entregando un argumento o sin el argumento, ya que se le da uno por defecto
+//    De esta forma podemos usarla tanto para cargar todos nuestros datos, como para buscar uno en especifico.
+//    por esto se comenta la línea let request : NSFetchRequest<Item> = Item.fetchRequest()
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest())
     {
-        if let data = try? Data(contentsOf: dataFilePath!)
-        {
-            let decoder = PropertyListDecoder()
-            do{
-                itemArray = try decoder.decode([Item].self, from: data)
-            }
-            catch
-            {
-                print("error decoding item array,\(error)")
-            }
+//        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        do{
+           itemArray = try context.fetch(request)
+        }catch{
+            print("Error fetching data from context \(error)")
         }
+        
+        tableView.reloadData()
     }
+    
+    
     
 }
 
+//MARK: Search bar methods
+
+extension TodoListViewController : UISearchBarDelegate
+{
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar)
+    {
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        
+        let predicate = NSPredicate(format: "title CONTAINTS[cd] %@", searchBar.text!)
+        
+        request.predicate = predicate
+        
+        let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
+        
+        request.sortDescriptors = [sortDescriptor]
+        
+        loadItems(with: request)
+
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String)
+    {
+        if searchBar.text?.count == 0
+        {
+            loadItems()
+            
+            DispatchQueue.main.async
+            {
+                searchBar.resignFirstResponder()
+            }
+            
+            
+        }
+    }
+}

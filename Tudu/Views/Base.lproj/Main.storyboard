@@ -9,7 +9,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Tudu-->
+        <!--Items-->
         <scene sceneID="iPC-0r-dGu">
             <objects>
                 <tableViewController id="RMu-Ci-tbc" customClass="TodoListViewController" customModule="Tudu" customModuleProvider="target" sceneMemberID="viewController">
@@ -17,9 +17,17 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <searchBar key="tableHeaderView" contentMode="redraw" id="aSh-K3-439">
+                            <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            <textInputTraits key="textInputTraits"/>
+                            <connections>
+                                <outlet property="delegate" destination="RMu-Ci-tbc" id="DL9-JV-XTb"/>
+                            </connections>
+                        </searchBar>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="ToDoItemCell" id="qL8-MH-W0n">
-                                <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="72" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="qL8-MH-W0n" id="WmR-Zm-VeC">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
@@ -32,7 +40,7 @@
                             <outlet property="delegate" destination="RMu-Ci-tbc" id="hLw-el-eKd"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Tudu" id="1aV-yc-qS5">
+                    <navigationItem key="navigationItem" title="Items" id="1aV-yc-qS5">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="haK-Wx-xVY">
                             <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <connections>
@@ -43,7 +51,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kmE-om-Vlv" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1745" y="133"/>
+            <point key="canvasLocation" x="2252" y="119"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="TEb-fc-MfU">
@@ -57,12 +65,51 @@
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
-                        <segue destination="RMu-Ci-tbc" kind="relationship" relationship="rootViewController" id="2cR-2J-sSt"/>
+                        <segue destination="uUB-LW-q7L" kind="relationship" relationship="rootViewController" id="Esl-YV-ekA"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FMP-Nj-P1p" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1020" y="132.68365817091455"/>
+            <point key="canvasLocation" x="342" y="119"/>
+        </scene>
+        <!--Tudu-->
+        <scene sceneID="0DH-M5-kPy">
+            <objects>
+                <tableViewController id="uUB-LW-q7L" customClass="CategoryViewController" customModule="Tudu" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="ZwB-s1-DnT" customClass="cate">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="CategoryCell" id="mk5-h2-Sn9">
+                                <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="mk5-h2-Sn9" id="JJ1-EZ-ebY">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="uUB-LW-q7L" id="5x7-LA-gE3"/>
+                            <outlet property="delegate" destination="uUB-LW-q7L" id="Ag2-Xz-cJj"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Tudu" id="i2a-Fq-17k">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="dRb-sh-n48">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <connections>
+                                <action selector="addButtonPressd:" destination="uUB-LW-q7L" id="Qgn-k2-ooR"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <segue destination="RMu-Ci-tbc" kind="show" identifier="goToItems" id="TvB-ef-oKb"/>
+                    </connections>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="XdE-dc-osY" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1234" y="117"/>
         </scene>
     </scenes>
 </document>
