@@ -16,6 +16,12 @@ class TodoListViewController: UITableViewController
 //    Se reemplaza esta opción de almacenar los datos por el FileManager
 //    let defaults = UserDefaults.standard
     
+    var selectedCategory : Category?{
+        didSet{
+            loadItems()
+        }
+    }
+    
     //        Se modifica esta línea para crear nuestro propio plist.
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
 
@@ -34,7 +40,7 @@ class TodoListViewController: UITableViewController
         
         
         
-        loadItems()
+//        loadItems()
         
     }
 
@@ -111,6 +117,8 @@ class TodoListViewController: UITableViewController
             
             newItem.done = false
             
+            newItem.parentCategory = self.selectedCategory
+            
             self.itemArray.append(newItem)
 //            Modificamos la siguiente línea que estaba generando el crash al agregar nuevos datos
 //            en la lista
@@ -150,9 +158,20 @@ class TodoListViewController: UITableViewController
 //    Se puede llamar entregando un argumento o sin el argumento, ya que se le da uno por defecto
 //    De esta forma podemos usarla tanto para cargar todos nuestros datos, como para buscar uno en especifico.
 //    por esto se comenta la línea let request : NSFetchRequest<Item> = Item.fetchRequest()
-    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest())
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil)
     {
 //        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        
+        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+        
+        if let addtionalPredicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate,addtionalPredicate])
+        }
+        else
+        {
+            request.predicate = categoryPredicate
+        }
+                
         do{
            itemArray = try context.fetch(request)
         }catch{
@@ -174,7 +193,7 @@ extension TodoListViewController : UISearchBarDelegate
     {
         let request : NSFetchRequest<Item> = Item.fetchRequest()
         
-        let predicate = NSPredicate(format: "title CONTAINTS[cd] %@", searchBar.text!)
+        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
         
         request.predicate = predicate
         
@@ -182,7 +201,7 @@ extension TodoListViewController : UISearchBarDelegate
         
         request.sortDescriptors = [sortDescriptor]
         
-        loadItems(with: request)
+        loadItems(with: request, predicate: predicate)
 
     }
     
